@@ -1,0 +1,16 @@
+version: '3'
+services:
+  client:
+    image: famesters-graphs
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: famesters-graphs
+    volumes:
+      - /tmp/famesters-graphs/npm-cache:/root/.npm:z
+      - ./famesters-graphs/src:/app/src:z
+    ports:
+      - "5111:80"
+    environment:
+      - PORT=80
+    restart: "no"
