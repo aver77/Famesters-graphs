@@ -23,3 +23,8 @@ export interface IChart {
     x: TDate;
     category: TDate;
 }
+
+export interface IFilters {
+    model: ModelEnum | "all";
+    type: TypeEnum | "all";
+}

@@ -1,6 +1,6 @@
 import p from "papaparse";
 import { ModelEnum, TypeEnum } from "./typization/enums";
-import { IChart, ICost, IUsage } from "./typization/interfaces";
+import { IChart, ICost, IFilters, IUsage } from "./typization/interfaces";
 import { Point, Options, PointOptionsObject } from "highcharts";
 
 export const loadCsvData = <T>(dataUrl: `/${string}`, setter: (v: T[]) => void) => {
@@ -18,7 +18,11 @@ export const loadCsvData = <T>(dataUrl: `/${string}`, setter: (v: T[]) => void) 
         .catch(() => setter([]));
 };
 
-export const generateChartData = (usagesData: IUsage[], costsData: ICost[]): IChart[] => {
+export const generateChartData = (
+    usagesData: IUsage[],
+    costsData: ICost[],
+    filters?: IFilters
+): IChart[] => {
     const groupedCostsByModel: Record<ModelEnum, ICost> = costsData.reduce(
         (acc, currV) => {
             return {
@@ -29,7 +33,7 @@ export const generateChartData = (usagesData: IUsage[], costsData: ICost[]): ICh
         {} as Record<ModelEnum, ICost>
     );
 
-    return usagesData.map((usage) => {
+    const mappedUsagesData = usagesData.map((usage) => {
         const { type, model, usage_input, usage_output, created_at } = { ...usage };
         const currentModel = groupedCostsByModel[model];
         const calculatedPrice =
@@ -42,6 +46,21 @@ export const generateChartData = (usagesData: IUsage[], costsData: ICost[]): ICh
             category: created_at
         };
     });
+
+    if (!filters?.model && !filters?.type) {
+        return mappedUsagesData;
+    } else {
+        return mappedUsagesData.filter((mappedUsage) => {
+            let shouldNotBeFiltered = true;
+            if (filters?.model && filters.model !== "all") {
+                shouldNotBeFiltered &&= mappedUsage.model === filters.model;
+            }
+            if (filters?.type && filters.type !== "all") {
+                shouldNotBeFiltered &&= mappedUsage.type === filters.type;
+            }
+            return shouldNotBeFiltered;
+        });
+    }
 };
 
 export const getHighChartsOptions = (filteredChartData: IChart[]): Options => {
