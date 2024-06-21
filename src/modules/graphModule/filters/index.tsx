@@ -4,6 +4,7 @@ import { getFilteredChartData } from "../utils";
 
 import styles from "./styles.module.scss";
 import { ModelEnum, TypeEnum } from "../typization/enums";
+import Select from "shared/ui/select";
 
 interface IFiltersComponent {
     chartData: IChart[];
@@ -18,30 +19,24 @@ const Filters: FC<IFiltersComponent> = ({ chartData, children }) => {
 
     const filteredChartData = getFilteredChartData(chartData, filters);
 
+    const handleFilter = (e: React.ChangeEvent<HTMLSelectElement>, filterType: keyof IFilters) => {
+        setFilters((prev) => ({ ...prev, [filterType]: e.target.value }));
+    };
+
     return (
         <div>
             {cloneElement(children, { chartData: filteredChartData })}
             <div className={styles.filtersContainer}>
-                <select
-                    onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, type: e.target.value as TypeEnum }))
-                    }
-                >
-                    <option value={""}>Select type filter</option>
-                    {Object.values(TypeEnum).map((typeValue) => (
-                        <option value={typeValue}>{typeValue}</option>
-                    ))}
-                </select>
-                <select
-                    onChange={(e) =>
-                        setFilters((prev) => ({ ...prev, model: e.target.value as ModelEnum }))
-                    }
-                >
-                    <option value={""}>Select model filter</option>
-                    {Object.values(ModelEnum).map((typeValue) => (
-                        <option value={typeValue}>{typeValue}</option>
-                    ))}
-                </select>
+                <Select
+                    onChange={(e) => handleFilter(e, "type")}
+                    optionsList={Object.values(TypeEnum)}
+                    placeholder={"Select type filter"}
+                />
+                <Select
+                    onChange={(e) => handleFilter(e, "model")}
+                    optionsList={Object.values(ModelEnum)}
+                    placeholder={"Select model filter"}
+                />
             </div>
         </div>
     );
