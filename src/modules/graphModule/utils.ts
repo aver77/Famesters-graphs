@@ -18,11 +18,7 @@ export const loadCsvData = <T>(dataUrl: `/${string}`, setter: (v: T[]) => void) 
         .catch(() => setter([]));
 };
 
-export const generateChartData = (
-    usagesData: IUsage[],
-    costsData: ICost[],
-    filters?: IFilters
-): IChart[] => {
+export const generateChartData = (usagesData: IUsage[], costsData: ICost[]): IChart[] => {
     const groupedCostsByModel: Record<ModelEnum, ICost> = costsData.reduce(
         (acc, currV) => {
             return {
@@ -33,7 +29,7 @@ export const generateChartData = (
         {} as Record<ModelEnum, ICost>
     );
 
-    const mappedUsagesData = usagesData.map((usage) => {
+    return usagesData.map((usage) => {
         const { type, model, usage_input, usage_output, created_at } = { ...usage };
         const currentModel = groupedCostsByModel[model];
         const calculatedPrice =
@@ -46,21 +42,21 @@ export const generateChartData = (
             category: created_at
         };
     });
+};
 
-    if (!filters?.model && !filters?.type) {
-        return mappedUsagesData;
-    } else {
-        return mappedUsagesData.filter((mappedUsage) => {
-            let shouldNotBeFiltered = true;
-            if (filters?.model && filters.model !== "all") {
-                shouldNotBeFiltered &&= mappedUsage.model === filters.model;
-            }
-            if (filters?.type && filters.type !== "all") {
-                shouldNotBeFiltered &&= mappedUsage.type === filters.type;
-            }
-            return shouldNotBeFiltered;
-        });
+export const getFilteredChartData = (chartData: IChart[], filters: IFilters): IChart[] => {
+    let duplicatedChartData = chartData;
+    if (filters.type) {
+        duplicatedChartData = duplicatedChartData.filter(
+            (chartEl) => chartEl.type === filters.type
+        );
     }
+    if (filters.model) {
+        duplicatedChartData = duplicatedChartData.filter(
+            (chartEl) => chartEl.model === filters.model
+        );
+    }
+    return duplicatedChartData;
 };
 
 export const getHighChartsOptions = (filteredChartData: IChart[]): Options => {

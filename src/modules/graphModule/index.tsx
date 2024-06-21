@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { IChart, ICost, IUsage } from "./typization/interfaces";
-import { generateChartData, getHighChartsOptions, loadCsvData } from "./utils";
-import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
-import HighchartsBoost from "highcharts/modules/boost";
-
-HighchartsBoost(Highcharts);
+import { generateChartData, loadCsvData } from "./utils";
+import Chart from "./Chart";
+import Filters from "./filters";
 
 const GraphModule = () => {
     const [usagesData, setUsagesData] = useState<IUsage[]>([]);
@@ -19,9 +16,9 @@ const GraphModule = () => {
     const chartData: IChart[] = generateChartData(usagesData, costsData);
 
     return (
-        <div>
-            <HighchartsReact highcharts={Highcharts} options={getHighChartsOptions(chartData)} />
-        </div>
+        <Filters chartData={chartData}>
+            <Chart />
+        </Filters>
     );
 };
 

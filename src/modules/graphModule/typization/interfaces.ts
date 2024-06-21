@@ -25,6 +25,6 @@ export interface IChart {
 }
 
 export interface IFilters {
-    model: ModelEnum | "all";
-    type: TypeEnum | "all";
+    model: ModelEnum | "";
+    type: TypeEnum | "";
 }
